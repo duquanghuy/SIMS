@@ -1,0 +1,18 @@
+## build artifacts
+**/bin/
+**/obj/
+
+## VS user files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## ASP.NET files
+*.db
+
+## other
+*.vs/
