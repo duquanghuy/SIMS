@@ -10,6 +10,7 @@
     <Folder Include="Data\" />
     <Folder Include="Services\" />
     <Folder Include="Repositories\" />
+    <Folder Include="wwwroot\images\icon\" />
   </ItemGroup>
 
 </Project>

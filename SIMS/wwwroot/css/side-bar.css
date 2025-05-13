@@ -1,45 +1,59 @@
 ﻿#sidebarContent {
-    background: #f8f9fa;
+    background-color: #231F20;
     border-right: 1px solid #dee2e6;
-    height: calc(100vh - 56px); /* navbar is 56px tall */
+    height: calc(100vh - 56px); /* account for navbar height */
+    width: auto; /* expanded width */
     transition: width 0.2s ease;
     overflow: hidden;
-    width: 20%; /* expanded width */
+    padding: 20px 10px !important;
 }
 
-    /* collapsed state: only icons */
+    /* Collapsed state: only icons */
     #sidebarContent.collapsed {
-        width: auto;
+        width: auto; /* shrink to icon width */
     }
 
-    /* nav links */
+    /* Nav links fill the full width */
     #sidebarContent .nav-link {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1rem;
+        width: 100%;
+        padding: 10px 30px !important;
+        color: #000; /* default text color */
+        text-decoration: none; /* remove underline */
     }
 
-        #sidebarContent .nav-link i {
-            font-size: 1.2rem;
-        }
+    /* Center icons when collapsed */
+    #sidebarContent.collapsed .nav-link {
+        justify-content: center;
+        padding: 10px !important;
+    }
 
-        #sidebarContent .nav-link .link-text {
-            margin-left: 0.5rem;
-            white-space: nowrap;
-        }
+    /* Icon styling */
+    #sidebarContent .nav-link i {
+        font-size: 1.2rem;
+        color: #fff
+    }
 
-    /* hide text when collapsed */
+    /* Text styling */
+    #sidebarContent .nav-link .link-text {
+        margin-left: 0.5rem;
+        white-space: nowrap;
+        color: #fff
+    }
+
+    /* Hide text when collapsed */
     #sidebarContent.collapsed .nav-link .link-text {
         display: none;
     }
 
-.sidebar {
-    background-color: #f8f9fa;
-    border-right: 1px solid #dee2e6;
-    padding: 1rem;
-    height: calc(100vh - 56px);
-}
-
-    .sidebar .nav-link {
-        margin-bottom: .5rem;
+    /* Highlight the active sidebar link across the entire row */
+    #sidebarContent .nav-link.active {
+        background-color: #3C3B3B; /* Bootstrap primary */
+        border-radius: 8px;
+        color: #fff !important; /* white text */
     }
+
+.flex-column {
+    width: 100%;
+}

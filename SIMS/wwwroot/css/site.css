@@ -12,11 +12,16 @@ html {
     }
 }
 
-html {
-    position: relative;
-    min-height: 100%;
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: transparent;
 }
 
 body {
-    margin-bottom: 60px;
+    overflow: hidden;
+    background-image: url('/images/picture/back-ground.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
 }
