@@ -6,6 +6,9 @@ html {
   html {
     font-size: 16px;
   }
+  .sidebar {
+        display: none;
+  }
 }
 
 html {
@@ -16,4 +19,5 @@ html {
 body {
   margin-bottom: 60px;
 }
+
 
