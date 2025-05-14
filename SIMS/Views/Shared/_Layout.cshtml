@@ -6,27 +6,19 @@
     <title>@ViewData["Title"] - SIMS</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
-
+    <script src="~/js/loading.js"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/button.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/side-bar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SIMS.styles.css" asp-append-version="true" />
-    <script src="~/js/side-bar.js" defer></script> 
+    <link rel="stylesheet" href="~/css/breadcrumb.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/loading.css" asp-append-version="true" />
+    <script src="~/js/side-bar.js" defer></script>
 
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-light bg-white border-bottom box-shadow">
-            <div class="container ps-3 m-0 justify-content-start">
-
-                <i class="fa-regular fa-compass navbar-toggler" aria-label="Toggle sidebar" id="sidebarToggle" ></i>
-
-                <a class="navbar-brand ms-4" asp-area="" asp-controller="Home" asp-action="Index">
-                    SIMS
-                </a>             
-            </div>
-        </nav>
-    </header>
+    <!-- HEADER NAVBAR -->
+    @await Component.InvokeAsync("Navbar")
 
     <div class="container-fluid" style="">
         <div class="row">
@@ -37,8 +29,8 @@
             <main role="main"
                   class="col"
                   id="mainContent">
-
-                <div class="main-container p-3 mt-3 mb-3">
+                @await Component.InvokeAsync("Breadcrumb")
+                <div class="main-container p-3 mb-3">
                     @RenderBody()
                 </div>
             </main>
