@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SIMS.Data;
 using SIMS.Models;
+using SIMS.ViewModels;
 
 namespace SIMS.Controllers
 {
@@ -23,9 +25,26 @@ namespace SIMS.Controllers
             return View();
         }
 
-        public IActionResult Wiki()
+        public IActionResult Wiki(int page = 1, int pageSize = 10)
         {
-            return View();
+            // 1) get all “API” data
+            var allItems = DummyWikiData.GetAll();
+
+            // 2) page it
+            var paged = allItems
+                         .Skip((page - 1) * pageSize)
+                         .Take(pageSize)
+                         .ToList<object>();        // still pass as object for your Table component
+
+            // 3) build your WikiViewModel
+            var vm = new WikiViewModel
+            {
+                Items = paged,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalCount = allItems.Count
+            };
+            return View(vm);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

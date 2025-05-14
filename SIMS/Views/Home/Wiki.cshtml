@@ -5,13 +5,52 @@
 
 <div>
     <h1 class="display-4">Wiki</h1>
-    <p>This page contain all shared components</p>
+    <p>Trang này chứa tất cả các component chung sẽ dùng cho cả trang web, cần thì lấy mấy cái này, không cần phải tạo mới <br> 
+        Đối chiếu code trong Wiki.cshtml với hình ảnh để biết cách hoạt động</p>
 </div>
-<div class="demo-btn">
+<div class="mt-3">
+    <h2>Buttons</h2>
+</div>
+<div class="demo-btn mt-3">
     <button asp-btn="primary" type="button">primary</button>
     <button asp-btn="secondary" type="button">secondary</button>
     <button asp-btn="warning" type="button">warning</button>
     <button asp-btn="success" type="button">success</button>
     <button asp-btn="pending" type="button">pending</button>
 
+</div>
+<div class="mt-3">
+    <h2>Table (with pagination)</h2>
+</div>
+<div class="demo-table mt-3">
+    @{
+        var columns = new List<SIMS.ViewModels.TableColumn>
+    {
+    new() { Header = "ID",          PropertyName = "Id" },
+    new() { Header = "Name",        PropertyName = "Name" },
+    new() { Header = "Description", PropertyName = "Description" }
+    };
+    }
+
+    @await Component.InvokeAsync(
+            "Table",
+            new
+            {
+                items = Model.Items,
+                columns = columns
+            }
+            )
+
+    @await Component.InvokeAsync(
+            "Pagination",
+            new
+            {
+                currentPage = Model.PageNumber,
+                pageSize = Model.PageSize,
+                totalItems = Model.TotalCount,
+                action = "Wiki",
+                controller = "Home",
+                routeValues = (object?)null
+            }
+            )
 </div>
