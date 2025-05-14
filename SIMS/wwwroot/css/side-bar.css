@@ -22,6 +22,7 @@
         padding: 10px 30px !important;
         color: #fff; /* default text color */
         text-decoration: none;
+        margin-top: 5px;
     }
 
     /* Center icons when collapsed */

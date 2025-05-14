@@ -26,7 +26,25 @@ body {
     background-position: center center;
     background-size: cover;
 }
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
 
+    to {
+        transform: rotate(360deg);
+    }
+}
+.navbar-toggler {
+    border-color: #fff !important;
+    color: #231F20 !important;
+    font-size: 30px;
+    padding: 0 !important;
+}
+    .navbar-toggler:hover {
+        animation: spin 0.6s linear infinite;
+        cursor: pointer;
+    }
 /* === Main Container Scrollbar === */
 .main-container {
     border-radius: 8px;

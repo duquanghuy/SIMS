@@ -1,4 +1,5 @@
-﻿(function () {
+﻿
+(function () {
     const sb = document.getElementById("sidebarContent");
     const toggle = document.getElementById("sidebarToggle");
     const STORAGE_KEY = "sidebarCollapsed";
@@ -18,15 +19,13 @@
         localStorage.setItem(STORAGE_KEY, collapsed);
     }
 
+    // Immediately apply the stored state before any repaint
+    applyState(getState());
+
     // Wire up the toggle button
     toggle.addEventListener("click", () => {
         const now = !sb.classList.contains("collapsed");
         applyState(now);
         setState(now);
-    });
-
-    // On page load, re-apply whatever the user last chose
-    document.addEventListener("DOMContentLoaded", () => {
-        applyState(getState());
     });
 })();
