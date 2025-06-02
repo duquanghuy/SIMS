@@ -3,7 +3,7 @@
     background-color: #231F20;
     border-right: 1px solid #dee2e6;
     height: calc(100vh - 56px); /* account for navbar height */
-    width: 150px; /* expanded width */
+    width: auto; /* expanded width */
     transition: width 0.2s ease; /* animate width */
     overflow: hidden;
     padding: 20px 10px !important;
