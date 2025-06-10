@@ -1,0 +1,21 @@
+﻿@model IEnumerable<SIMS.ViewModels.BreadcrumbItem>
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb mt-1 mb-1">
+        @foreach (var item in Model)
+        {
+            if (item.Url is not null)
+            {
+                <li class="breadcrumb-item">
+                    <a href="@item.Url">@item.Label</a>
+                </li>
+            }
+            else
+            {
+                <li class="breadcrumb-item active" aria-current="page">
+                    @item.Label
+                </li>
+            }
+        }
+    </ol>
+</nav>

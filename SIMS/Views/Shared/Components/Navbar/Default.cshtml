@@ -1,0 +1,31 @@
+﻿@using System.Security.Claims
+
+<header>
+    <nav class="navbar navbar-light bg-white border-bottom box-shadow">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="fa-regular fa-compass navbar-toggler"
+                   aria-label="Toggle sidebar"
+                   id="sidebarToggle"></i>
+
+                <a class="navbar-brand ms-4"
+                   asp-area="" asp-controller="Home" asp-action="Index">
+                    SIMS
+                </a>
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                <div class="d-flex align-items-center">
+                    <span class="me-3 text-dark fw-semibold">Hello, @email</span>
+
+                    <form method="post" asp-controller="Auth" asp-action="Logout" class="mb-0">
+                        <button type="submit" class="btn btn-outline-primary btn-sm">Logout</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </nav>
+</header>

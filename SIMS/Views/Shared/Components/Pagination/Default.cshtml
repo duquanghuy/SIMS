@@ -1,0 +1,110 @@
+﻿@model SIMS.ViewModels.PaginationModel
+
+@if (Model.TotalPages > 1)
+{
+    
+        var total   = Model.TotalPages;
+        var current = Model.CurrentPage;
+        const int window = 3;
+
+        var start = Math.Max(2, current - window);
+        var end   = Math.Min(total - 1, current + window);
+    
+    <nav aria-label="Page navigation">
+      <div class="d-flex align-items-center">
+        <!-- Pagination links -->
+        <ul class="pagination mb-0">
+          <li class="page-item @(current == 1 ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@Model.Action"
+               asp-controller="@Model.Controller"
+               asp-route-page="@(current - 1)"
+               asp-route-pageSize="@Model.PageSize">
+              <i class="fa-solid fa-chevron-left"></i>
+            </a>
+          </li>
+
+          <li class="page-item @(current == 1 ? "active" : "")">
+            <a class="page-link"
+               asp-action="@Model.Action"
+               asp-controller="@Model.Controller"
+               asp-route-page="1"
+               asp-route-pageSize="@Model.PageSize">
+              1
+            </a>
+          </li>
+
+          @if (start > 2)
+          {
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          }
+
+          @for (int i = start; i <= end; i++)
+          {
+            <li class="page-item @(i == current ? "active" : "")">
+              <a class="page-link"
+                 asp-action="@Model.Action"
+                 asp-controller="@Model.Controller"
+                 asp-route-page="@i"
+                 asp-route-pageSize="@Model.PageSize">
+                @i
+              </a>
+            </li>
+          }
+
+          @if (end < total - 1)
+          {
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          }
+
+          <li class="page-item @(current == total ? "active" : "")">
+            <a class="page-link"
+               asp-action="@Model.Action"
+               asp-controller="@Model.Controller"
+               asp-route-page="@total"
+               asp-route-pageSize="@Model.PageSize">
+              @total
+            </a>
+          </li>
+
+          <li class="page-item @(current == total ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@Model.Action"
+               asp-controller="@Model.Controller"
+               asp-route-page="@(current + 1)"
+               asp-route-pageSize="@Model.PageSize">
+              <i class="fa-solid fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Go-to box -->
+        <form method="get" class="go-to-box ms-3 d-inline-flex"
+              asp-action="@Model.Action"
+              asp-controller="@Model.Controller">
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   name="page"
+                   class="form-control"
+                   min="1"
+                   max="@Model.TotalPages"
+                   placeholder="Page"
+                   value="@Model.CurrentPage" 
+                   required />
+
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+
+            @if (Model.RouteValues != null)
+            {
+              foreach (var kv in Model.RouteValues)
+              {
+                <input type="hidden" name="@kv.Key" value="@kv.Value" />
+              }
+            }
+
+            <button class="btn btn-outline-secondary" type="submit">Go</button>
+          </div>
+        </form>
+      </div>
+    </nav>
+}

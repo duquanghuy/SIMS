@@ -1,0 +1,70 @@
+﻿
+#sidebarContent {
+    background-color: #231F20;
+    border-right: 1px solid #dee2e6;
+    height: calc(100vh - 56px); /* account for navbar height */
+    width: auto; /* expanded width */
+    transition: width 0.2s ease; /* animate width */
+    overflow: hidden;
+    padding: 20px 10px !important;
+}
+
+    /* Collapsed state: only icons */
+    #sidebarContent.collapsed {
+        width: 60px; /* collapsed width */
+    }
+
+    /* Nav links fill the full sidebar width */
+    #sidebarContent .nav-link {
+        display: flex;
+        align-items: center;
+        width: 100%; /* ensure full-row background on hover/active */
+        padding: 10px 30px !important;
+        color: #fff; /* default text color */
+        text-decoration: none;
+        margin-top: 5px;
+    }
+
+    /* Center icons when collapsed */
+    #sidebarContent.collapsed .nav-link {
+        justify-content: center;
+        padding: 10px !important;
+    }
+
+    /* Hover state */
+    #sidebarContent .nav-link:hover {
+        background: #2E2D2D;
+        border-radius: 8px;
+        color: wheat;
+    }
+
+    /* Icon styling */
+    #sidebarContent .nav-link i {
+        font-size: 1.2rem;
+        color: #fff;
+    }
+
+    /* Text styling */
+    #sidebarContent .nav-link .link-text {
+        margin-left: 0.5rem;
+        white-space: nowrap;
+        color: #fff;
+    }
+
+    /* Hide text when collapsed */
+    #sidebarContent.collapsed .nav-link .link-text {
+        display: none;
+    }
+
+    /* Highlight the active sidebar link across the entire row */
+    #sidebarContent .nav-link.active {
+        background-color: #3C3B3B;
+        border-radius: 8px;
+        font-weight: 500;
+        color: wheat !important;
+    }
+
+/* Utility: ensure your flex column container spans its parent */
+.flex-column {
+    width: 100%;
+}

@@ -1,0 +1,107 @@
+/* === Global and HTML/Body === */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+
+    .sidebar {
+        display: none;
+    }
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background-color: transparent;
+}
+
+body {
+    overflow: hidden;
+    background-image: url('/images/picture/back-ground.svg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+.navbar-toggler {
+    border-color: #fff !important;
+    color: #231F20 !important;
+    font-size: 30px;
+    padding: 0 !important;
+}
+    .navbar-toggler:hover {
+        animation: spin 0.6s linear infinite;
+        cursor: pointer;
+    }
+/* === Main Container Scrollbar === */
+.main-container {
+    border-radius: 8px;
+    background: #fff;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #231F20 transparent;
+}
+
+    /* WebKit Scrollbar - overall */
+    .main-container::-webkit-scrollbar {
+        width: 12px;
+        background: transparent !important;
+        height: 12px;
+    }
+
+    /* Remove all arrow buttons */
+    .main-container::-webkit-scrollbar-button {
+        display: none !important;
+    }
+
+
+
+        .main-container::-webkit-scrollbar-button:horizontal:start,
+        .main-container::-webkit-scrollbar-button:horizontal:end,
+        .main-container::-webkit-scrollbar-button:vertical:start,
+        .main-container::-webkit-scrollbar-button:vertical:end {
+            display: none !important;
+            width: 0;
+            height: 0;
+        }
+
+    /* Corner where two scrollbars meet */
+    .main-container::-webkit-scrollbar-corner {
+        background: transparent !important;
+    }
+
+    /* Track (background) */
+    .main-container::-webkit-scrollbar-track {
+        background: transparent !important; /* fully transparent track */
+        border-radius: 6px;
+        margin: 2px 0; /* add some breathing room */
+    }
+
+    /* Thumb (handle) */
+    .main-container::-webkit-scrollbar-thumb {
+        background-color: #231F20; /* your chosen thumb color */
+        border-radius: 6px;
+        border: 3px solid transparent; /* ensure padding around thumb */
+        background-clip: content-box; /* keep border transparent */
+    }
+
+        /* Thumb hover */
+        .main-container::-webkit-scrollbar-thumb:hover {
+            background-color: #000; /* darker on hover */
+        }
+
