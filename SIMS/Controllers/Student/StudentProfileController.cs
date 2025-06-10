@@ -1,0 +1,13 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace SIMS.Controllers.Student
+{
+    public class StudentProfileController : Controller
+    {
+        public IActionResult Index()
+        {
+            ViewData["Title"] = "Student Profile";
+            return View();
+        }
+    }
+}

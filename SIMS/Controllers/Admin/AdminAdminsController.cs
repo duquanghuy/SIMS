@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SIMS.Controllers
+namespace SIMS.Controllers.Admin
 {
-    public class AdminScheduleController : Controller
+    public class AdminAdminsController : Controller
     {
         public IActionResult Index()
         {
-            ViewData["Title"] = "Schedule";
+            ViewData["Title"] = "Manage Admins";
             return View();
         }
     }

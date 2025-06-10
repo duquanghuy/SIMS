@@ -58,7 +58,16 @@ namespace SIMS.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-            return RedirectToAction("Index", "Home");
+            switch (userRole)
+            {
+                case "Admin":
+                    return RedirectToAction("Index", "AdminHome");
+                case "Teacher":
+                    return RedirectToAction("Index", "TeacherHome");
+                case "Student":
+                default:
+                    return RedirectToAction("Index", "StudentHome");
+            }
         }
 
         [HttpPost]
@@ -68,13 +77,6 @@ namespace SIMS.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login", "Auth");
-        }
-
-        [HttpGet]
-        public IActionResult HashPasswordDemo()
-        {
-            var hashed = PasswordHelper.HashPassword("1234");
-            return Content($"Hashed password: {hashed}");
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace SIMS.Controllers
+namespace SIMS.Controllers.Teacher
 {
-    public class StudentProfileController : Controller
+    public class TeacherHomeController : Controller
     {
         public IActionResult Index()
         {
-            ViewData["Title"] = "Student Profile";
+            ViewData["Title"] = "Teacher Home";
             return View();
         }
     }
