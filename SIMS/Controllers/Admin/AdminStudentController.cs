@@ -1,13 +1,222 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SIMS.Data;
+using SIMS.Helpers;
+using SIMS.Models;
+using SIMS.ViewModels;
 
 namespace SIMS.Controllers.Admin
 {
     public class AdminStudentController : Controller
     {
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public AdminStudentController(ApplicationDbContext context)
         {
-            ViewData["Title"] = "Manage Students";
+            _context = context;
+        }
+
+        public IActionResult Index(int page = 1, int pageSize = 10)
+
+        {
+            const int PageSize = 10;
+
+            var totalItems = _context.Students.Count();
+
+            var students = _context.Students
+                .OrderBy(s => s.StudentId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(s => new
+                {
+                    s.StudentNumber,
+                    s.FirstName,
+                    s.LastName,
+                    s.DateOfBirth,
+                    EnrollmentDate = s.EnrollmentDate.Date,
+                    Action = ""
+                })
+                .ToList();
+
+                        var columns = new List<TableColumn>
+            {
+                new TableColumn { Header = "Student Number", PropertyName = "StudentNumber" },
+                new TableColumn { Header = "First Name", PropertyName = "FirstName" },
+                new TableColumn { Header = "Last Name", PropertyName = "LastName" },
+                new TableColumn { Header = "Enrollment Date", PropertyName = "EnrollmentDate" },
+                new TableColumn { Header = "Action", PropertyName = "Action" }
+            };
+
+
+            ViewData["Students"] = students;
+            ViewData["Columns"] = columns;
+            ViewData["Pagination"] = new PaginationModel
+            {
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                Action = "Index",
+                Controller = "AdminStudent",
+                RouteValues = new Dictionary<string, string>()
+            };
+
             return View();
         }
+
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> CreateStudent(string FirstName, string LastName, DateTime EnrollmentDate)
+        {
+            if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName))
+                return BadRequest("Missing required fields");
+
+            
+
+
+
+            FirstName = char.ToUpper(FirstName[0]) + FirstName.Substring(1).ToLower();
+            LastName = char.ToUpper(LastName[0]) + LastName.Substring(1).ToLower();
+
+
+            string baseEmail = $"{FirstName}.{LastName}".ToLower();
+
+            string email = $"{baseEmail}@sims.com";
+            int suffix = 1;
+
+
+            while (_context.Users.Any(u => u.Email == email))
+            {
+                email = $"{baseEmail}{suffix}@sims.com";
+                suffix++;
+            }
+
+
+            if (_context.Users.Any(u => u.Email == email)) 
+                return Conflict("User already exists.");
+
+            string password = "123456";
+            string hashedPassword = PasswordHelper.HashPassword(password);
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = email,
+                PasswordHash = hashedPassword,
+                CreatedAt = DateTime.Now
+            };
+            _context.Users.Add(user);
+
+            _context.UserRoles.Add(new UserRole
+            {
+                UserId = user.Id,
+                RoleId = Guid.Parse("00000000-0000-0000-0000-000000000003")
+            });
+
+            var student = new Models.Student
+            {
+                UserId = user.Id,
+                FirstName = FirstName,
+                LastName = LastName,
+                EnrollmentDate = EnrollmentDate,
+                DateOfBirth = DateTime.MinValue,
+                StudentNumber = GenerateNextStudentNumber()
+            };
+            _context.Students.Add(student);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        private string GenerateNextStudentNumber()
+        {
+
+            var lastStudent = _context.Students
+                .OrderByDescending(s => s.StudentId)
+                .FirstOrDefault();
+
+            int lastNumber = 0;
+
+            if (lastStudent != null && !string.IsNullOrEmpty(lastStudent.StudentNumber))
+            {
+                string numberPart = lastStudent.StudentNumber.Substring(1);
+                int.TryParse(numberPart, out lastNumber);
+            }
+
+            int newNumber = lastNumber + 1;
+            return $"S{newNumber.ToString("D4")}";
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string studentNumber)
+        {
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.StudentNumber == studentNumber);
+
+            if (student == null)
+                return NotFound();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == student.UserId);
+            var roles = _context.UserRoles.Where(r => r.UserId == student.UserId);
+
+            _context.UserRoles.RemoveRange(roles);
+            if (user != null) _context.Users.Remove(user);
+            _context.Students.Remove(student);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStudent(
+        string OriginalStudentNumber,
+        string FirstName,
+        string LastName,
+        DateTime EnrollmentDate,
+        string OriginalFirstName,
+        string OriginalLastName)
+        {
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentNumber == OriginalStudentNumber);
+            if (student == null)
+                return NotFound("Student not found.");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == student.UserId);
+            if (user == null)
+                return NotFound("Linked user not found.");
+
+            // Capitalize updated names
+            FirstName = char.ToUpper(FirstName[0]) + FirstName.Substring(1).ToLower();
+            LastName = char.ToUpper(LastName[0]) + LastName.Substring(1).ToLower();
+
+            student.FirstName = FirstName;
+            student.LastName = LastName;
+            student.EnrollmentDate = EnrollmentDate;
+
+            // If name changed, update email
+            if (!string.Equals(OriginalFirstName, FirstName, StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(OriginalLastName, LastName, StringComparison.OrdinalIgnoreCase))
+            {
+                string baseEmail = $"{FirstName}.{LastName}".ToLower();
+                string email = $"{baseEmail}@sims.com";
+                int suffix = 1;
+
+                while (_context.Users.Any(u => u.Email == email && u.Id != user.Id))
+                {
+                    email = $"{baseEmail}{suffix}@sims.com";
+                    suffix++;
+                }
+
+                user.Email = email;
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+
+
+
     }
 }

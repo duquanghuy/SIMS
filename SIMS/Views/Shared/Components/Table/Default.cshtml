@@ -1,4 +1,5 @@
 ﻿@model SIMS.ViewModels.TableViewModel
+@using System.Text.Json
 
 <table class="table table-striped">
     <thead>
@@ -15,13 +16,132 @@
             <tr>
                 @foreach (var col in Model.Columns)
                 {
-                    // reflect to get the property value
                     var prop = item.GetType().GetProperty(col.PropertyName);
-                    var value = prop?.GetValue(item) ?? "";
 
-                    <td>@value</td>
+                    @if (col.PropertyName == "Action")
+                    {
+                        var studentNumberProp = item.GetType().GetProperty("StudentNumber");
+                        var teacherIdProp = item.GetType().GetProperty("TeacherId");
+                        var userIdProp = item.GetType().GetProperty("Id");
+
+                        var studentNumber = studentNumberProp?.GetValue(item)?.ToString();
+                        var teacherId = teacherIdProp?.GetValue(item)?.ToString();
+                        var userId = userIdProp?.GetValue(item)?.ToString();
+
+                        var isStudent = studentNumberProp != null;
+                        var isTeacher = teacherIdProp != null;
+                        var isAdmin = !isStudent && !isTeacher && userIdProp != null;
+
+                        var json = JsonSerializer.Serialize(item);
+                        <td>
+                            @if (isStudent)
+                            {
+                                <button class="btn btn-sm btn-secondary me-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#viewStudentModal"
+                                        data-student='@Html.Raw(json)'>
+                                    View
+                                </button>
+                                <a href="javascript:void(0)"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="deleteStudent('@studentNumber')">Delete</a>
+                            }
+                            else if (isTeacher)
+                            {
+                                <button class="btn btn-sm btn-secondary me-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#viewTeacherModal"
+                                        data-teacher='@Html.Raw(json)'>
+                                    View
+                                </button>
+                                <a href="javascript:void(0)"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="deleteTeacher('@teacherId')">Delete</a>
+                            }
+                            else if (isAdmin)
+                            {
+                                <button class="btn btn-sm btn-warning me-2"
+                                        onclick="editAdmin('@userId')">
+                                    Edit
+                                </button>
+                                <a href="javascript:void(0)"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="deleteAdmin('@userId')">Delete</a>
+                            }
+                        </td>
+                    }
+                    else
+                    {
+                        var rawValue = prop?.GetValue(item);
+                        var value = rawValue is DateTime dt ? dt.ToString("dd-MM-yyyy") : rawValue?.ToString();
+                        <td>@value</td>
+                    }
                 }
             </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        function deleteStudent(studentNumber) {
+            if (!confirm('Are you sure you want to delete this student?')) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "AdminStudent")' + '?studentNumber=' + studentNumber,
+                method: 'GET',
+                success: function () {
+                    alert('Student deleted successfully!');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ Error: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function deleteTeacher(teacherId) {
+            if (!confirm('Are you sure you want to delete this teacher?')) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "AdminTeacher")' + '?teacherId=' + teacherId,
+                method: 'GET',
+                success: function () {
+                    alert('Teacher deleted successfully!');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ Error: ' + xhr.responseText);
+                }
+            });
+        }
+
+        function deleteAdmin(userId) {
+            if (!confirm("Are you sure you want to delete this admin?")) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "AdminAdmins")' + '?userId=' + userId,
+                method: 'GET',
+                success: function () {
+                    alert('Admin deleted!');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ ' + xhr.responseText);
+                }
+            });
+        }
+
+        function editAdmin(userId) {
+            const newPassword = prompt("Enter new password:");
+            if (!newPassword) return;
+
+            $.post('@Url.Action("Edit", "AdminAdmins")', {
+                userId: userId,
+                newPassword: newPassword
+            })
+            .done(() => {
+                alert('Password updated');
+                window.location.reload();
+            })
+            .fail(xhr => alert('❌ ' + xhr.responseText));
+        }
+    </script>
+}

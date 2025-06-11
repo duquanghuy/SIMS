@@ -12,6 +12,9 @@ namespace SIMS.Data
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,6 +33,16 @@ namespace SIMS.Data
                 .HasOne(ur => ur.Role)
                 .WithMany()
                 .HasForeignKey(ur => ur.RoleId);
+
+            modelBuilder.Entity<User>()
+                .HasOne<Student>()
+                .WithOne(s => s.User)
+                .HasForeignKey<Student>(s => s.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasOne<Teacher>()
+                .WithOne(t => t.User)
+                .HasForeignKey<Teacher>(t => t.UserId);
         }
     }
 }

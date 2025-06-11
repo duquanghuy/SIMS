@@ -1,5 +1,215 @@
 ﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Manage Students";
+    ViewData["Title"] = "Manage Students";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Manage Students</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+        <i class="fa fa-plus"></i> Add New Student
+    </button>
+</div>
+
+<!-- Add New Student Modal -->
+<div class="modal fade" id="addStudentModal" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreateStudent" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addStudentModalLabel">Add New Student</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" name="FirstName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" name="LastName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="enrollmentDate" class="form-label">Enrollment Date</label>
+                        <input type="date" name="EnrollmentDate" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+           
+        </div>
+    </div>
+</div>
+<h3 class="mt-4 mb-2">Student List</h3>
+
+@await Component.InvokeAsync("Table", new
+    {
+        items = ViewData["Students"],
+        columns = ViewData["Columns"]
+    })
+
+@{
+    var paginationModel = ViewData["Pagination"] as SIMS.ViewModels.PaginationModel;
+}
+
+
+
+@if (paginationModel != null)
+{
+    @await Component.InvokeAsync("Pagination", new
+        {
+            currentPage = paginationModel.CurrentPage,
+            pageSize = paginationModel.PageSize,
+            totalItems = paginationModel.TotalItems,
+            action = paginationModel.Action,
+            controller = paginationModel.Controller,
+            routeValues = paginationModel.RouteValues
+        })
+
+}
+
+<!-- View + Edit Student Modal -->
+<div class="modal fade" id="viewStudentModal" tabindex="-1" aria-labelledby="viewStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editStudentForm">
+                <input type="hidden" name="OriginalFirstName" id="originalFirstName" />
+                <input type="hidden" name="OriginalLastName" id="originalLastName" />
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewStudentModalLabel">Student Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="OriginalStudentNumber" id="viewStudentNumber" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Student Number</label>
+                        <input type="text" class="form-control" disabled id="viewStudentNumberDisplay" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="FirstName" id="viewFirstName" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="LastName" id="viewLastName" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="text" class="form-control" id="viewDateOfBirth" disabled />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Enrollment Date</label>
+                        <input type="date" class="form-control" name="EnrollmentDate" id="viewEnrollmentDate" disabled />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="editBtn" class="btn btn-secondary">Edit</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn" disabled>Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#createStudentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '@Url.Action("CreateStudent", "AdminStudent")',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function () {
+                    alert('Student created successfully!');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ Error: ' + xhr.responseText);
+                }
+            });
+        });
+
+                         let originalFirstName = "";
+        let originalLastName = "";
+
+        const formatDate = (dateStr) => {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${year}-${month}-${day}`; // for input[type="date"]
+        };
+
+        $('#viewStudentModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const student = button.data('student');
+
+            // Set values
+            $('#viewStudentNumber').val(student.StudentNumber);
+            $('#viewStudentNumberDisplay').val(student.StudentNumber);
+            $('#viewFirstName').val(student.FirstName);
+            $('#viewLastName').val(student.LastName);
+            $('#viewDateOfBirth').val(formatDate(student.DateOfBirth));
+            $('#viewEnrollmentDate').val(formatDate(student.EnrollmentDate));
+            $('#originalFirstName').val(student.FirstName);
+            $('#originalLastName').val(student.LastName);
+
+            // Track original values
+            originalFirstName = student.FirstName;
+            originalLastName = student.LastName;
+
+            // Reset state
+            $('#editBtn').show();
+            $('#saveBtn').prop('disabled', true);
+            $('#viewFirstName, #viewLastName, #viewEnrollmentDate').prop('disabled', true);
+        });
+
+        $('#editBtn').on('click', function () {
+            $('#viewFirstName, #viewLastName, #viewEnrollmentDate').prop('disabled', false);
+            $('#saveBtn').prop('disabled', false);
+            $(this).hide(); // hide "Edit"
+        });
+
+        $('#editStudentForm').on('submit', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '@Url.Action("UpdateStudent", "AdminStudent")',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function () {
+                    alert('Student updated successfully!');
+                    $('#viewStudentModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ Error: ' + xhr.responseText);
+                }
+            });
+        });
+        function deleteStudent(studentNumber) {
+            if (!confirm('Are you sure you want to delete this student?')) return;
+            $.ajax({
+                url: '@Url.Action("Delete", "AdminStudent")' + '?studentNumber=' + studentNumber,
+                method: 'GET',
+                success: function () {
+                    alert('Student deleted successfully!');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    alert('❌ Error: ' + xhr.responseText);
+                }
+            });
+        }
+    </script>
+            }
