@@ -7,25 +7,24 @@ namespace SIMS.Models
     public class Student
     {
         [Key]
-        public int StudentId { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.None)] // manually set
+        public string StudentId { get; set; }
 
-        [Required]
+        public int StudentNumber { get; set; } // manually generated now
+
         public Guid UserId { get; set; }
 
-        [ForeignKey("UserId")]
-        public User User { get; set; }
-
-        [Required]
-        public string StudentNumber { get; set; }
-
-        [Required]
         public string FirstName { get; set; }
 
-        [Required]
         public string LastName { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 
         public DateTime EnrollmentDate { get; set; }
+        public string? Address { get; set; }
+        public string? PhoneNumber { get; set; }
+
+        public User User { get; set; }
     }
+
 }

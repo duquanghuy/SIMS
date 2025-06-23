@@ -17,18 +17,18 @@ namespace SIMS.Controllers.Admin
         }
 
         public IActionResult Index(int page = 1, int pageSize = 10)
-
         {
             const int PageSize = 10;
 
             var totalItems = _context.Students.Count();
 
             var students = _context.Students
-                .OrderBy(s => s.StudentId)
+                .OrderBy(s => s.StudentNumber) // Use StudentNumber for ordering
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(s => new
                 {
+                    s.StudentId,
                     s.StudentNumber,
                     s.FirstName,
                     s.LastName,
@@ -38,15 +38,14 @@ namespace SIMS.Controllers.Admin
                 })
                 .ToList();
 
-                        var columns = new List<TableColumn>
+            var columns = new List<TableColumn>
             {
-                new TableColumn { Header = "Student Number", PropertyName = "StudentNumber" },
+                new TableColumn { Header = "Student ID", PropertyName = "StudentId" },
                 new TableColumn { Header = "First Name", PropertyName = "FirstName" },
                 new TableColumn { Header = "Last Name", PropertyName = "LastName" },
                 new TableColumn { Header = "Enrollment Date", PropertyName = "EnrollmentDate" },
                 new TableColumn { Header = "Action", PropertyName = "Action" }
             };
-
 
             ViewData["Students"] = students;
             ViewData["Columns"] = columns;
@@ -63,38 +62,24 @@ namespace SIMS.Controllers.Admin
             return View();
         }
 
-
-
-
         [HttpPost]
         public async Task<IActionResult> CreateStudent(string FirstName, string LastName, DateTime EnrollmentDate)
         {
             if (string.IsNullOrWhiteSpace(FirstName) || string.IsNullOrWhiteSpace(LastName))
                 return BadRequest("Missing required fields");
 
-            
-
-
-
             FirstName = char.ToUpper(FirstName[0]) + FirstName.Substring(1).ToLower();
             LastName = char.ToUpper(LastName[0]) + LastName.Substring(1).ToLower();
 
-
             string baseEmail = $"{FirstName}.{LastName}".ToLower();
-
             string email = $"{baseEmail}@sims.com";
             int suffix = 1;
-
 
             while (_context.Users.Any(u => u.Email == email))
             {
                 email = $"{baseEmail}{suffix}@sims.com";
                 suffix++;
             }
-
-
-            if (_context.Users.Any(u => u.Email == email)) 
-                return Conflict("User already exists.");
 
             string password = "123456";
             string hashedPassword = PasswordHelper.HashPassword(password);
@@ -111,49 +96,37 @@ namespace SIMS.Controllers.Admin
             _context.UserRoles.Add(new UserRole
             {
                 UserId = user.Id,
-                RoleId = Guid.Parse("00000000-0000-0000-0000-000000000003")
+                RoleId = Guid.Parse("00000000-0000-0000-0000-000000000003") // Student role
             });
 
+            // 🔢 Manually generate next StudentNumber
+            int nextStudentNumber = (_context.Students.Max(s => (int?)s.StudentNumber) ?? 0) + 1;
+            string studentId = $"S{nextStudentNumber.ToString("D4")}";
+
+            // ✅ Set StudentId and StudentNumber before Add()
             var student = new Models.Student
             {
+                StudentId = studentId,
+                StudentNumber = nextStudentNumber,
                 UserId = user.Id,
                 FirstName = FirstName,
                 LastName = LastName,
                 EnrollmentDate = EnrollmentDate,
-                DateOfBirth = DateTime.MinValue,
-                StudentNumber = GenerateNextStudentNumber()
+                DateOfBirth = DateTime.MinValue
             };
+
             _context.Students.Add(student);
-
             await _context.SaveChangesAsync();
+
             return RedirectToAction("Index");
-        }
-
-        private string GenerateNextStudentNumber()
-        {
-
-            var lastStudent = _context.Students
-                .OrderByDescending(s => s.StudentId)
-                .FirstOrDefault();
-
-            int lastNumber = 0;
-
-            if (lastStudent != null && !string.IsNullOrEmpty(lastStudent.StudentNumber))
-            {
-                string numberPart = lastStudent.StudentNumber.Substring(1);
-                int.TryParse(numberPart, out lastNumber);
-            }
-
-            int newNumber = lastNumber + 1;
-            return $"S{newNumber.ToString("D4")}";
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> Delete(string studentNumber)
+        public async Task<IActionResult> Delete(string studentId)
         {
             var student = await _context.Students
-                .FirstOrDefaultAsync(s => s.StudentNumber == studentNumber);
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
             if (student == null)
                 return NotFound();
@@ -171,14 +144,14 @@ namespace SIMS.Controllers.Admin
 
         [HttpPost]
         public async Task<IActionResult> UpdateStudent(
-        string OriginalStudentNumber,
-        string FirstName,
-        string LastName,
-        DateTime EnrollmentDate,
-        string OriginalFirstName,
-        string OriginalLastName)
+            string StudentId,
+            string FirstName,
+            string LastName,
+            DateTime EnrollmentDate,
+            string OriginalFirstName,
+            string OriginalLastName)
         {
-            var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentNumber == OriginalStudentNumber);
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == StudentId);
             if (student == null)
                 return NotFound("Student not found.");
 
@@ -186,7 +159,6 @@ namespace SIMS.Controllers.Admin
             if (user == null)
                 return NotFound("Linked user not found.");
 
-            // Capitalize updated names
             FirstName = char.ToUpper(FirstName[0]) + FirstName.Substring(1).ToLower();
             LastName = char.ToUpper(LastName[0]) + LastName.Substring(1).ToLower();
 
@@ -194,7 +166,6 @@ namespace SIMS.Controllers.Admin
             student.LastName = LastName;
             student.EnrollmentDate = EnrollmentDate;
 
-            // If name changed, update email
             if (!string.Equals(OriginalFirstName, FirstName, StringComparison.OrdinalIgnoreCase) ||
                 !string.Equals(OriginalLastName, LastName, StringComparison.OrdinalIgnoreCase))
             {
@@ -214,9 +185,5 @@ namespace SIMS.Controllers.Admin
             await _context.SaveChangesAsync();
             return Ok();
         }
-
-
-
-
     }
 }
