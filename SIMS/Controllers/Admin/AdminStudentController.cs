@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SIMS.Data;
 using SIMS.Helpers;
 using SIMS.Models;
+
 using SIMS.ViewModels;
 
 namespace SIMS.Controllers.Admin
@@ -18,12 +19,10 @@ namespace SIMS.Controllers.Admin
 
         public IActionResult Index(int page = 1, int pageSize = 10)
         {
-            const int PageSize = 10;
-
             var totalItems = _context.Students.Count();
 
             var students = _context.Students
-                .OrderBy(s => s.StudentNumber) // Use StudentNumber for ordering
+                .OrderBy(s => s.StudentNumber)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(s => new
@@ -99,11 +98,9 @@ namespace SIMS.Controllers.Admin
                 RoleId = Guid.Parse("00000000-0000-0000-0000-000000000003") // Student role
             });
 
-            // 🔢 Manually generate next StudentNumber
             int nextStudentNumber = (_context.Students.Max(s => (int?)s.StudentNumber) ?? 0) + 1;
-            string studentId = $"S{nextStudentNumber.ToString("D4")}";
+            string studentId = $"S{nextStudentNumber:D4}";
 
-            // ✅ Set StudentId and StudentNumber before Add()
             var student = new Models.Student
             {
                 StudentId = studentId,
@@ -112,33 +109,14 @@ namespace SIMS.Controllers.Admin
                 FirstName = FirstName,
                 LastName = LastName,
                 EnrollmentDate = EnrollmentDate,
-                DateOfBirth = DateTime.MinValue
+                DateOfBirth = DateTime.MinValue,
+                Address = "",
+                PhoneNumber = ""
             };
 
             _context.Students.Add(student);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Index");
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(string studentId)
-        {
-            var student = await _context.Students
-                .FirstOrDefaultAsync(s => s.StudentId == studentId);
-
-            if (student == null)
-                return NotFound();
-
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == student.UserId);
-            var roles = _context.UserRoles.Where(r => r.UserId == student.UserId);
-
-            _context.UserRoles.RemoveRange(roles);
-            if (user != null) _context.Users.Remove(user);
-            _context.Students.Remove(student);
-
-            await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
 
@@ -184,6 +162,47 @@ namespace SIMS.Controllers.Admin
 
             await _context.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(string studentId)
+        {
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId);
+            if (student == null) return NotFound();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == student.UserId);
+            var roles = _context.UserRoles.Where(r => r.UserId == student.UserId);
+
+            _context.UserRoles.RemoveRange(roles);
+            if (user != null) _context.Users.Remove(user);
+            _context.Students.Remove(student);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
+        }
+
+        // ✅ API: Get full student details for modal view
+        [HttpGet]
+        public async Task<IActionResult> GetStudentDetails(string StudentId)
+        {
+            var student = await _context.Students
+                .Where(s => s.StudentId == StudentId)
+                .Select(s => new
+                {
+                    s.StudentId,
+                    s.FirstName,
+                    s.LastName,
+                    s.DateOfBirth,
+                    s.EnrollmentDate,
+                    s.PhoneNumber,
+                    s.Address
+                })
+                .FirstOrDefaultAsync();
+
+            if (student == null)
+                return NotFound();
+
+            return Json(student);
         }
     }
 }

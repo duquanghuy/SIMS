@@ -61,11 +61,11 @@ namespace SIMS.Controllers.Student
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(string NewPassword, string ConfirmPassword)
+        public async Task<IActionResult> ChangePassword(StudentProfileViewModel model)
         {
-            if (string.IsNullOrWhiteSpace(NewPassword) || NewPassword.Length < 8 || NewPassword != ConfirmPassword)
+            if (!ModelState.IsValid)
             {
-                TempData["ErrorMessage"] = "Passwords do not match or are invalid.";
+                TempData["ErrorMessage"] = "Please complete all password fields correctly.";
                 return RedirectToAction("Index");
             }
 
@@ -75,10 +75,17 @@ namespace SIMS.Controllers.Student
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound();
 
-            // ✅ Dùng PasswordHelper để hash đúng kiểu
-            user.PasswordHash = PasswordHelper.HashPassword(NewPassword);
+            // Kiểm tra mật khẩu hiện tại
+            if (!PasswordHelper.VerifyPassword(model.CurrentPassword!, user.PasswordHash))
+            {
+                TempData["ErrorMessage"] = "Current password is incorrect.";
+                return RedirectToAction("Index");
+            }
 
+            // Cập nhật mật khẩu mới
+            user.PasswordHash = PasswordHelper.HashPassword(model.NewPassword!);
             await _context.SaveChangesAsync();
+
             TempData["SuccessMessage"] = "Password changed successfully.";
             return RedirectToAction("Index");
         }

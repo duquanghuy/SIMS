@@ -69,19 +69,39 @@
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="ChangePassword" method="post">
+            <form asp-action="ChangePassword" asp-controller="StudentProfile" method="post">
+                <!-- ✅ Preserve full model state using hidden fields -->
+                <input type="hidden" asp-for="StudentId" />
+                <input type="hidden" asp-for="FirstName" />
+                <input type="hidden" asp-for="LastName" />
+                <input type="hidden" asp-for="DateOfBirth" />
+                <input type="hidden" asp-for="EnrollmentDate" />
+                <input type="hidden" asp-for="Address" />
+                <input type="hidden" asp-for="PhoneNumber" />
+
                 <div class="modal-header">
                     <h5 class="modal-title">Change Password</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
                     <div class="mb-3">
-                        <label class="form-label">New Password</label>
-                        <input name="NewPassword" type="password" class="form-control" required minlength="8" />
+                        <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                        <input asp-for="CurrentPassword" type="password" class="form-control" required />
+                        <span asp-validation-for="CurrentPassword" class="text-danger"></span>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label">Confirm Password</label>
-                        <input name="ConfirmPassword" type="password" class="form-control" required minlength="8" />
+                        <label asp-for="NewPassword" class="form-label">New Password</label>
+                        <input asp-for="NewPassword" type="password" class="form-control" required minlength="8" />
+                        <span asp-validation-for="NewPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" required minlength="8" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="modal-footer">
