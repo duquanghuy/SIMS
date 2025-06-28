@@ -95,6 +95,10 @@
                         <input type="text" class="form-control" name="LastName" id="viewLastName" disabled />
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="viewStudentEmail" disabled />
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Date of Birth</label>
                         <input type="date" class="form-control" id="viewDateOfBirth" disabled />
                     </div>
@@ -145,7 +149,7 @@
                 $('#viewEnrollmentDate').val(formatDate(student.enrollmentDate));
                 $('#viewPhoneNumber').val(student.phoneNumber);
                 $('#viewAddress').val(student.address);
-
+                $("#viewStudentEmail").val(student.email); // ✅ phải đúng key trả từ controller
                 $('#originalFirstName').val(student.firstName);
                 $('#originalLastName').val(student.lastName);
 

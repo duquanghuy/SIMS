@@ -1,4 +1,78 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Teacher Profile";
+﻿@model SIMS.Models.Teacher
+
+@{
+    ViewData["Title"] = "Teacher Profile";
+    var successMessage = TempData["Success"] as string;
+    var errorMessage = TempData["Error"] as string;
 }
-<h1>@ViewData["Title"]</h1>
+
+<h2>Teacher Profile</h2>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card p-3 mt-3">
+    <p><strong>Teacher ID:</strong> @Model.TeacherId</p>
+    <p><strong>First Name:</strong> @Model.FirstName</p>
+    <p><strong>Last Name:</strong> @Model.LastName</p>
+    <p><strong>Email:</strong> @Model.User.Email</p>
+</div>
+
+<!-- Nút đổi mật khẩu -->
+<div class="mt-4">
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+        Change Password
+    </button>
+</div>
+
+<!-- Modal đổi mật khẩu -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="ChangePassword" asp-controller="TeacherProfile" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input name="currentPassword" type="password" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input name="newPassword" type="password" class="form-control" required minlength="8" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <input name="confirmPassword" type="password" class="form-control" required minlength="8" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
