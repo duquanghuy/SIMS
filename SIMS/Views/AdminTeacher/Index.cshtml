@@ -66,6 +66,10 @@
                         <label class="form-label">Last Name</label>
                         <input type="text" class="form-control" name="LastName" id="viewLastName" disabled />
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="viewTeacherEmail" disabled />
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -131,7 +135,7 @@
             $('#viewLastName').val(teacher.LastName);
             $('#originalFirstName').val(teacher.FirstName);
             $('#originalLastName').val(teacher.LastName);
-
+             $('#viewTeacherEmail').val(teacher.Email);
             $('#editBtn').show();
             $('#saveBtn').prop('disabled', true);
             $('#viewFirstName, #viewLastName').prop('disabled', true);
