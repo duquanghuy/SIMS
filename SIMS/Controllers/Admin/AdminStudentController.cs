@@ -195,7 +195,8 @@ namespace SIMS.Controllers.Admin
                     s.DateOfBirth,
                     s.EnrollmentDate,
                     s.PhoneNumber,
-                    s.Address
+                    s.Address,
+                    s.User.Email
                 })
                 .FirstOrDefaultAsync();
 

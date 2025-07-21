@@ -31,6 +31,7 @@ namespace SIMS.Controllers.Admin
                     t.TeacherId,
                     t.FirstName,
                     t.LastName,
+                    Email = t.User.Email,
                     Action = ""
                 })
                 .ToList();
@@ -40,6 +41,7 @@ namespace SIMS.Controllers.Admin
                 new TableColumn { Header = "Teacher ID", PropertyName = "TeacherId" },
                 new TableColumn { Header = "First Name", PropertyName = "FirstName" },
                 new TableColumn { Header = "Last Name", PropertyName = "LastName" },
+                 new TableColumn { Header = "Email", PropertyName = "Email" },
                 new TableColumn { Header = "Action", PropertyName = "Action" }
             };
 

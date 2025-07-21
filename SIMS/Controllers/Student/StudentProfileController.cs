@@ -5,6 +5,7 @@ using SIMS.Helpers;
 using SIMS.Models;
 using SIMS.Models.ViewModels;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SIMS.Controllers.Student
 {
@@ -23,7 +24,10 @@ namespace SIMS.Controllers.Student
             var userId = GetCurrentUserId();
             if (userId == null) return Unauthorized();
 
-            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userId);
+            var student = await _context.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.UserId == userId);
+
             if (student == null) return NotFound();
 
             var model = new StudentProfileViewModel
@@ -34,7 +38,8 @@ namespace SIMS.Controllers.Student
                 DateOfBirth = student.DateOfBirth,
                 EnrollmentDate = student.EnrollmentDate,
                 Address = student.Address,
-                PhoneNumber = student.PhoneNumber
+                PhoneNumber = student.PhoneNumber,
+                Email = student.User?.Email
             };
 
             return View(model);
@@ -56,16 +61,23 @@ namespace SIMS.Controllers.Student
             student.PhoneNumber = model.PhoneNumber;
 
             await _context.SaveChangesAsync();
+
             TempData["SuccessMessage"] = "Profile updated successfully.";
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(StudentProfileViewModel model)
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
             {
-                TempData["ErrorMessage"] = "Please complete all password fields correctly.";
+                TempData["ErrorMessage"] = "All password fields are required.";
+                return RedirectToAction("Index");
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["ErrorMessage"] = "New passwords do not match.";
                 return RedirectToAction("Index");
             }
 
@@ -75,15 +87,14 @@ namespace SIMS.Controllers.Student
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound();
 
-            // Kiểm tra mật khẩu hiện tại
-            if (!PasswordHelper.VerifyPassword(model.CurrentPassword!, user.PasswordHash))
+            bool isMatch = PasswordHelper.VerifyPassword(currentPassword, user.PasswordHash);
+            if (!isMatch)
             {
                 TempData["ErrorMessage"] = "Current password is incorrect.";
                 return RedirectToAction("Index");
             }
 
-            // Cập nhật mật khẩu mới
-            user.PasswordHash = PasswordHelper.HashPassword(model.NewPassword!);
+            user.PasswordHash = PasswordHelper.HashPassword(newPassword);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Password changed successfully.";
@@ -93,7 +104,7 @@ namespace SIMS.Controllers.Student
         private Guid? GetCurrentUserId()
         {
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Guid.TryParse(userIdStr, out Guid userId) ? userId : null;
+            return Guid.TryParse(userIdStr, out var userId) ? userId : null;
         }
     }
 }
