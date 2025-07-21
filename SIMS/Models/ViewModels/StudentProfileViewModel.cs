@@ -10,7 +10,7 @@ namespace SIMS.Models.ViewModels
         public string? FirstName { get; set; }
 
         public string? LastName { get; set; }
-
+        public string Email { get; set; }
         [Required(ErrorMessage = "Date of Birth is required.")]
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
