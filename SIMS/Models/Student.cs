@@ -25,6 +25,9 @@ namespace SIMS.Models
         public string? PhoneNumber { get; set; }
 
         public User User { get; set; }
+
+        public ICollection<Enrollment> Enrollments { get; set; }
+            = new List<Enrollment>();
     }
 
 }

@@ -1,5 +1,172 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Dashboard";
+﻿@using Newtonsoft.Json
+@model SIMS.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h2>@ViewData["Title"]</h2>
+
+<!-- Statistic Cards -->
+<div class="row mb-4">
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Students</h5>
+                <p class="card-text display-6">@Model.TotalStudents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Teachers</h5>
+                <p class="card-text display-6">@Model.TotalTeachers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Classes</h5>
+                <p class="card-text display-6">@Model.TotalClasses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Subjects</h5>
+                <p class="card-text display-6">@Model.TotalSubjects</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Enrollments</h5>
+                <p class="card-text display-6">@Model.ActiveEnrollments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Avg. Score</h5>
+                <p class="card-text display-6">@Model.AverageScore.ToString("F2")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Students per Class</div>
+            <div class="card-body">
+                <canvas id="studentsPerClassChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Students by Subject</div>
+            <div class="card-body">
+                <canvas id="studentsBySubjectChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Enrollment Trends</div>
+            <div class="card-body">
+                <canvas id="enrollmentTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">Average Score per Class</div>
+            <div class="card-body">
+                <canvas id="averageScorePerClassChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Students per Class
+        var studentsPerClassLabels = @Html.Raw(JsonConvert.SerializeObject(Model.StudentsPerClass.Select(x => x.ClassLabel)));
+        var studentsPerClassData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.StudentsPerClass.Select(x => x.Count)));
+        new Chart(document.getElementById('studentsPerClassChart'), {
+            type: 'bar',
+            data: {
+                labels: studentsPerClassLabels,
+                datasets: [{
+                    label: 'Students',
+                    data: studentsPerClassData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        // Students by Subject
+        var studentsBySubjectLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.StudentsBySubject.Select(x => x.SubjectLabel)));
+        var studentsBySubjectData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.StudentsBySubject.Select(x => x.Count)));
+        new Chart(document.getElementById('studentsBySubjectChart'), {
+            type: 'pie',
+            data: {
+                labels: studentsBySubjectLabels,
+                datasets: [{
+                    data: studentsBySubjectData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 159, 64, 0.6)'
+                    ]
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Enrollment Trends
+        var enrollmentTrendsLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EnrollmentTrends.Select(x => x.Date.ToString("yyyy-MM-dd"))));
+        var enrollmentTrendsData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.EnrollmentTrends.Select(x => x.Count)));
+        new Chart(document.getElementById('enrollmentTrendsChart'), {
+            type: 'line',
+            data: {
+                labels: enrollmentTrendsLabels,
+                datasets: [{
+                    label: 'Enrollments',
+                    data: enrollmentTrendsData,
+                    fill: false,
+                    borderColor: 'rgba(255, 99, 132, 0.8)',
+                    tension: 0.1
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        // Average Score per Class
+        var averageScorePerClassLabels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AverageScorePerClass.Select(x => x.ClassLabel)));
+        var averageScorePerClassData = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.AverageScorePerClass.Select(x => x.AverageScore)));
+        new Chart(document.getElementById('averageScorePerClassChart'), {
+            type: 'bar',
+            data: {
+                labels: averageScorePerClassLabels,
+                datasets: [{
+                    label: 'Avg. Score',
+                    data: averageScorePerClassData,
+                    backgroundColor: 'rgba(255, 206, 86, 0.6)'
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    </script>
+}

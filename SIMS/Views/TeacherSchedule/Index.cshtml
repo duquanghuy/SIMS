@@ -1,4 +1,107 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Teacher Schedule";
+﻿@model SIMS.Models.ViewModels.TeacherScheduleViewModel
+
+@{
+    ViewData["Title"] = "My Teaching Schedule";
+    var days = new[] {
+        System.DayOfWeek.Monday,
+        System.DayOfWeek.Tuesday,
+        System.DayOfWeek.Wednesday,
+        System.DayOfWeek.Thursday,
+        System.DayOfWeek.Friday,
+        System.DayOfWeek.Saturday,
+        System.DayOfWeek.Sunday
+    };
+    var times = new[] { "Morning", "Afternoon" };
+    var today = DateTime.Today.DayOfWeek;
 }
-<h1>@ViewData["Title"]</h1>
+
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-bordered text-center">
+    <thead>
+        <tr>
+            <th>Time Slot</th>
+            @foreach (var day in days)
+            {
+                var highlight = day == today ? "table-info" : "";
+                <th class="@highlight">@day</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var slot in times)
+        {
+            <tr>
+                <td><strong>@slot</strong></td>
+                @foreach (var day in days)
+                {
+                    var assigned = (Model.Slots != null && Model.Slots.ContainsKey(day) && Model.Slots[day] != null && Model.Slots[day].ContainsKey(slot))
+                        ? Model.Slots[day][slot]
+                        : new List<SIMS.Models.ClassSchedule>();
+                    var highlight = day == today ? "table-info" : "";
+                    <td class="@highlight">
+                        @if (assigned.Any())
+                        {
+                            foreach (var sched in assigned)
+                            {
+                                var modalId = $"modal_{sched.ScheduleId}";
+                                <div class="mb-1 d-flex align-items-center justify-content-between">
+                                    <span class="badge bg-primary flex-grow-1">
+                                        @sched.Class?.Subject?.Code
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#@modalId" title="View Details">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                                <!-- Modal for class details -->
+                                <div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="@(modalId + "_Label")" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="@(modalId + "_Label")">Class Details</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h6>Students</h6>
+                                                <table class="table table-sm table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Name</th>
+                                                            <th>Email</th>
+                                                            <th>Phone</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @if (sched.Class?.Enrollments != null && sched.Class.Enrollments.Any())
+                                                    {
+                                                        foreach (var enrollment in sched.Class.Enrollments)
+                                                        {
+                                                            <tr>
+                                                                <td>@enrollment.Student?.FirstName @enrollment.Student?.LastName</td>
+                                                                <td>@(enrollment.Student?.User?.Email ?? "N/A")</td>
+                                                                <td>@(string.IsNullOrEmpty(enrollment.Student?.PhoneNumber) ? "N/A" : enrollment.Student?.PhoneNumber)</td>
+                                                            </tr>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <tr><td colspan="3">No students found.</td></tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,5 +1,61 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "View Scores";
+﻿@model SIMS.Models.ViewModels.AdminViewScoresViewModel
+
+@{
+    ViewData["Title"] = "View Scores";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="Index" class="mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label for="classSelect" class="form-label">Select Class:</label>
+            <select id="classSelect" name="classId" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Select a class --</option>
+                @foreach (var item in Model.Classes)
+                {
+                    if (Model.SelectedClassId?.ToString() == item.Value)
+                    {
+                        <option value="@item.Value" selected>@item.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+</form>
+
+@if (Model.SelectedClassId.HasValue)
+{
+    if (Model.Students.Any())
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in Model.Students)
+                {
+                    <tr>
+                        <td>@student.StudentName</td>
+                        <td>@student.Email</td>
+                        <td>@student.Phone</td>
+                        <td>@student.Score</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">No students found for this class.</div>
+    }
+}

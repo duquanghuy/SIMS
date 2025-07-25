@@ -1,4 +1,55 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Teacher Home";
+﻿@model SIMS.Models.ViewModels.TeacherHomeViewModel
+
+@{
+    ViewData["Title"] = "Teacher Home";
 }
-<h1>@ViewData["Title"]</h1>
+
+<h2>@ViewData["Title"]</h2>
+
+<h4>Today's Classes</h4>
+@if (Model.TodaysClasses.Any())
+{
+    <ul>
+        @foreach (var cls in Model.TodaysClasses.OrderBy(c => c.TimeSlot))
+        {
+            <li><strong>@cls.ClassCode</strong> - @cls.ClassName (@cls.TimeSlot)</li>
+        }
+    </ul>
+}
+else
+{
+    <div class="alert alert-info">You have no classes scheduled for today.</div>
+}
+
+<h4>All My Classes</h4>
+@if (Model.AllClasses.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Class Code</th>
+                <th>Class Name</th>
+                <th>Total Students</th>
+                <th>Average Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.AllClasses)
+            {
+                <tr>
+                    <td>@row.ClassCode</td>
+                    <td>@row.ClassName</td>
+                    <td>@row.StudentCount</td>
+                    <td>@row.AverageScore.ToString("F2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="mt-3">
+        <strong>Overall Average Score:</strong> @Model.OverallAverageScore.ToString("F2")
+    </div>
+}
+else
+{
+    <div class="alert alert-info">You are not assigned to any classes.</div>
+}

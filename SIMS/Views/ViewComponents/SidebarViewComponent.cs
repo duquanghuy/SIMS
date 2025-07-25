@@ -33,7 +33,6 @@ namespace SIMS.ViewComponents
                 {
                     new SidebarItem { Title = "Home",         IconClass = "fa-solid fa-house",         Controller = "StudentHome",        Action = "Index" },
                     new SidebarItem { Title = "Schedule",     IconClass = "fa-solid fa-calendar",      Controller = "StudentSchedule",    Action = "Index" },
-                    new SidebarItem { Title = "Assignments",  IconClass = "fa-solid fa-book",          Controller = "StudentAssignments", Action = "Index" },
                     new SidebarItem { Title = "Scores",       IconClass = "fa-solid fa-chart-bar",     Controller = "StudentScores",      Action = "Index" },
                     new SidebarItem { Title = "Info",         IconClass = "fa-solid fa-info-circle",   Controller = "StudentProfile",     Action = "Index" }
                 });
@@ -44,18 +43,11 @@ namespace SIMS.ViewComponents
                 {
                     new SidebarItem { Title = "Home",         IconClass = "fa-solid fa-house",          Controller = "TeacherHome",        Action = "Index" },
                     new SidebarItem { Title = "Classes",      IconClass = "fa-solid fa-folder",         Controller = "TeacherClasses",     Action = "Index" },
-                    new SidebarItem { Title = "Student",      IconClass = "fa-solid fa-id-card",        Controller = "TeacherStudents",    Action = "Index" },
-                    new SidebarItem { Title = "Assignments",  IconClass = "fa-solid fa-clipboard",      Controller = "TeacherAssignments", Action = "Index" },
-                    new SidebarItem { Title = "Scores",       IconClass = "fa-solid fa-chart-line",     Controller = "TeacherScores",      Action = "Index" },
-                    new SidebarItem { Title = "Attendance",   IconClass = "fa-solid fa-clock",          Controller = "TeacherAttendance",  Action = "Index" },
                     new SidebarItem { Title = "Calendar",     IconClass = "fa-solid fa-calendar-days",  Controller = "TeacherSchedule",    Action = "Index" },
                     new SidebarItem { Title = "Info",         IconClass = "fa-solid fa-user",           Controller = "TeacherProfile",     Action = "Index" }
                 });
             }
 
-            // Shared for all roles
-            items.Add(new SidebarItem { Title = "Wiki", IconClass = "fa-brands fa-wikipedia-w", Controller = "Home", Action = "Wiki" });
-            items.Add(new SidebarItem { Title = "Settings", IconClass = "fa-solid fa-cogs", Controller = "Settings", Action = "Index" });
 
             // Highlight current
             var current = ViewContext.RouteData.Values;

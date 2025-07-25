@@ -1,4 +1,103 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Teacher Classes";
+﻿@model SIMS.Models.ViewModels.TeacherClassesViewModel
+
+@{
+    ViewData["Title"] = "My Classes";
 }
-<h1>@ViewData["Title"]</h1>
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="get" asp-action="Index" class="mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label for="classSelect" class="form-label">Select Class:</label>
+            <select id="classSelect" name="classId" class="form-select" onchange="this.form.submit()">
+                <option value="">-- Select a class --</option>
+                @foreach (var item in Model.Classes)
+                {
+                    if (Model.SelectedClassId?.ToString() == item.Value)
+                    {
+                        <option value="@item.Value" selected>@item.Text</option>
+                    }
+                    else
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+</form>
+
+@if (Model.SelectedClassId.HasValue)
+{
+    if (Model.Students.Any())
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Student Code</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in Model.Students)
+                {
+                    var rowId = $"row_{student.StudentCode}";
+                    <tr id="@rowId">
+                        <td>@student.StudentCode</td>
+                        <td>@student.Name</td>
+                        <td>@student.Email</td>
+                        <td>@student.Phone</td>
+                        <td>
+                            <form asp-action="UpdateScore" method="post" class="d-inline-block" id="scoreForm_@student.StudentCode" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="classId" value="@Model.SelectedClassId" />
+                                <input type="hidden" name="studentCode" value="@student.StudentCode" />
+                                <input type="number" name="score" min="0" max="100" value="@student.Score" class="form-control form-control-sm d-inline-block" style="width:80px;" id="scoreInput_@student.StudentCode" required disabled />
+                                <button type="button" class="btn btn-sm btn-primary" id="editBtn_@student.StudentCode" onclick="editScore('@student.StudentCode')">Edit</button>
+                                <button type="submit" class="btn btn-sm btn-success" id="saveBtn_@student.StudentCode" style="display:none;">Save</button>
+                                <button type="button" class="btn btn-sm btn-secondary" id="cancelBtn_@student.StudentCode" style="display:none;" onclick="cancelEdit('@student.StudentCode')">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="mt-3">
+            <strong>Average Score:</strong> @(((double?)ViewBag.AverageScore)?.ToString("F2") ?? "0.00")
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No students found for this class.</div>
+    }
+}
+
+<script>
+    function editScore(studentCode) {
+        var input = document.getElementById('scoreInput_' + studentCode);
+        input.disabled = false;
+        document.getElementById('editBtn_' + studentCode).style.display = 'none';
+        document.getElementById('saveBtn_' + studentCode).style.display = 'inline-block';
+        document.getElementById('cancelBtn_' + studentCode).style.display = 'inline-block';
+    }
+    function cancelEdit(studentCode) {
+        var input = document.getElementById('scoreInput_' + studentCode);
+        input.value = input.defaultValue;
+        input.disabled = true;
+        document.getElementById('editBtn_' + studentCode).style.display = 'inline-block';
+        document.getElementById('saveBtn_' + studentCode).style.display = 'none';
+        document.getElementById('cancelBtn_' + studentCode).style.display = 'none';
+    }
+    document.querySelectorAll('form[id^="scoreForm_"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var studentCode = form.querySelector('input[name="studentCode"]').value;
+            var input = document.getElementById('scoreInput_' + studentCode);
+            input.name = 'score';
+            input.disabled = false;
+        });
+    });
+</script>

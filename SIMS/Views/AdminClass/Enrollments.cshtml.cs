@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace SIMS.Views.StudentAssignments
+namespace SIMS.Views.AdminClass
 {
-    public class IndexModel : PageModel
+    public class EnrollmentsModel : PageModel
     {
         public void OnGet()
         {

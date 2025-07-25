@@ -1,5 +1,48 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Manage Classes";
+﻿@model IEnumerable<Class>
+@{
+    ViewData["Title"] = "Manage Classes";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Add New Class</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Subject</th>
+            <th>Teacher</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cls in Model)
+        {
+            <tr>
+                <td>@cls.ClassId</td>
+                <td>@cls.Subject.Code – @cls.Subject.Title</td>
+                <td>@cls.Teacher.FirstName @cls.Teacher.LastName</td>
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@cls.ClassId"
+                       class="btn btn-sm btn-outline-primary">
+                        Edit
+                    </a>
+                    <a asp-action="Delete"
+                       asp-route-id="@cls.ClassId"
+                       class="btn btn-sm btn-outline-danger">
+                        Delete
+                    </a>
+                    <a asp-action="Enrollments"
+                       asp-route-classId="@cls.ClassId"
+                       class="btn btn-sm btn-outline-secondary">
+                        Manage Students
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

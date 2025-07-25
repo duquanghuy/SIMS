@@ -1,4 +1,36 @@
-﻿@{
-    ViewData["Title"] = ViewData["Title"] ?? "Student Scores";
+﻿@model SIMS.Models.ViewModels.StudentScoreViewModel
+
+@{
+    ViewData["Title"] = "My Scores";
 }
-<h1>@ViewData["Title"]</h1>
+
+<h2>@ViewData["Title"]</h2>
+
+@if (Model.Scores.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Class</th>
+                <th>Teacher</th>
+                <th>Teacher Email</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Scores)
+            {
+                <tr>
+                    <td>@row.ClassName</td>
+                    <td>@row.TeacherName</td>
+                    <td>@row.TeacherEmail</td>
+                    <td>@row.Score</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No scores found.</div>
+}
