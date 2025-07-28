@@ -81,6 +81,35 @@
     </div>
 </div>
 
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Search Teachers</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index", "AdminTeacher")" class="row g-3">
+            <div class="col-md-4">
+                <label for="searchTeacherCode" class="form-label">Teacher Code</label>
+                <input type="text" class="form-control" id="searchTeacherCode" name="searchTeacherCode" 
+                       value="@ViewData["SearchTeacherCode"]" placeholder="Enter teacher ID (e.g., T0001)">
+            </div>
+            <div class="col-md-4">
+                <label for="searchName" class="form-label">Teacher Name</label>
+                <input type="text" class="form-control" id="searchName" name="searchName" 
+                       value="@ViewData["SearchName"]" placeholder="Enter first name, last name, or full name">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <a href="@Url.Action("Index", "AdminTeacher")" class="btn btn-secondary">
+                    <i class="fa fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <h3 class="mt-4 mb-2">Teacher List</h3>
 
 @await Component.InvokeAsync("Table", new

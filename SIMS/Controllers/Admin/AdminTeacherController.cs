@@ -16,13 +16,25 @@ namespace SIMS.Controllers.Admin
             _context = context;
         }
 
-        public IActionResult Index(int page = 1, int pageSize = 10)
+        public IActionResult Index(int page = 1, int pageSize = 10, string searchTeacherCode = "", string searchName = "")
         {
-            const int PageSize = 10;
+            var query = _context.Teachers.AsQueryable();
 
-            var totalItems = _context.Teachers.Count();
+            // Apply search filters
+            if (!string.IsNullOrWhiteSpace(searchTeacherCode))
+            {
+                query = query.Where(t => t.TeacherId.Contains(searchTeacherCode));
+            }
 
-            var teachers = _context.Teachers
+            if (!string.IsNullOrWhiteSpace(searchName))
+            {
+                query = query.Where(t => t.FirstName.Contains(searchName) || t.LastName.Contains(searchName) || 
+                                       (t.FirstName + " " + t.LastName).Contains(searchName));
+            }
+
+            var totalItems = query.Count();
+
+            var teachers = query
                 .OrderByDescending(t => t.TeacherId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -54,8 +66,16 @@ namespace SIMS.Controllers.Admin
                 TotalItems = totalItems,
                 Action = "Index",
                 Controller = "AdminTeacher",
-                RouteValues = new Dictionary<string, string>()
+                RouteValues = new Dictionary<string, string>
+                {
+                    { "searchTeacherCode", searchTeacherCode },
+                    { "searchName", searchName }
+                }
             };
+
+            // Pass search values to view
+            ViewData["SearchTeacherCode"] = searchTeacherCode;
+            ViewData["SearchName"] = searchName;
 
             return View();
         }

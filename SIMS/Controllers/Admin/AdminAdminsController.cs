@@ -17,10 +17,18 @@ namespace SIMS.Controllers.Admin
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string searchEmail = "")
         {
-            var admins = _context.Users
-                .Where(u => _context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == AdminRoleId))
+            var query = _context.Users
+                .Where(u => _context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == AdminRoleId));
+
+            // Apply search filter
+            if (!string.IsNullOrWhiteSpace(searchEmail))
+            {
+                query = query.Where(u => u.Email.Contains(searchEmail));
+            }
+
+            var admins = query
                 .Select(u => new
                 {
                     u.Id, // ✅ This is required for Action detection
@@ -38,6 +46,9 @@ namespace SIMS.Controllers.Admin
                     new TableColumn { Header = "Created At", PropertyName = "CreatedAt" },
                     new TableColumn { Header = "Action", PropertyName = "Action" }
                 };
+
+            // Pass search value to view
+            ViewData["SearchEmail"] = searchEmail;
 
             return View();
         }

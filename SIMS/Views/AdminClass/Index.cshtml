@@ -5,6 +5,35 @@
 
 <h2>@ViewData["Title"]</h2>
 
+<!-- Search Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Search Classes</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" action="@Url.Action("Index", "AdminClass")" class="row g-3">
+            <div class="col-md-4">
+                <label for="searchClassCode" class="form-label">Class Code</label>
+                <input type="text" class="form-control" id="searchClassCode" name="searchClassCode" 
+                       value="@ViewData["SearchClassCode"]" placeholder="Enter class ID or subject code">
+            </div>
+            <div class="col-md-4">
+                <label for="searchTeacherName" class="form-label">Teacher Name</label>
+                <input type="text" class="form-control" id="searchTeacherName" name="searchTeacherName" 
+                       value="@ViewData["SearchTeacherName"]" placeholder="Enter teacher first name, last name, or full name">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="fa fa-search"></i> Search
+                </button>
+                <a href="@Url.Action("Index", "AdminClass")" class="btn btn-secondary">
+                    <i class="fa fa-times"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
 <p>
     <a asp-action="Create" class="btn btn-primary">Add New Class</a>
 </p>

@@ -17,12 +17,33 @@ namespace SIMS.Controllers.Admin
         public AdminClassController(ApplicationDbContext context) => _context = context;
 
         // GET: Admin/AdminClass
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchClassCode = "", string searchTeacherName = "")
         {
-            var classes = await _context.Classes
+            var query = _context.Classes
                 .Include(c => c.Subject)
                 .Include(c => c.Teacher)
-                .ToListAsync();
+                .AsQueryable();
+
+            // Apply search filters
+            if (!string.IsNullOrWhiteSpace(searchClassCode))
+            {
+                query = query.Where(c => c.ClassId.ToString().Contains(searchClassCode) || 
+                                       c.Subject.Code.Contains(searchClassCode));
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTeacherName))
+            {
+                query = query.Where(c => c.Teacher.FirstName.Contains(searchTeacherName) || 
+                                       c.Teacher.LastName.Contains(searchTeacherName) || 
+                                       (c.Teacher.FirstName + " " + c.Teacher.LastName).Contains(searchTeacherName));
+            }
+
+            var classes = await query.ToListAsync();
+
+            // Pass search values to view
+            ViewData["SearchClassCode"] = searchClassCode;
+            ViewData["SearchTeacherName"] = searchTeacherName;
+
             return View(classes);
         }
 
